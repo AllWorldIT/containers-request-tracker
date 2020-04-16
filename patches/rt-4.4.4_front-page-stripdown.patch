@@ -1,0 +1,29 @@
+diff -ru rt-4.4.4_vanilla/share/html/Elements/Footer rt-4.4.4_front-page-stripdown/share/html/Elements/Footer
+--- rt-4.4.4_vanilla/share/html/Elements/Footer	2019-03-05 15:06:02.000000000 +0000
++++ rt-4.4.4_front-page-stripdown/share/html/Elements/Footer	2020-04-15 10:05:16.682366188 +0000
+@@ -53,11 +53,13 @@
+ % if ($m->{'rt_base_time'}) {
+   <p id="time"><span><&|/l&>Time to display</&>: <%Time::HiRes::tv_interval( $m->{'rt_base_time'} )%></span></p>
+ %}
++% if (0) {
+   <p id="bpscredits"><span><&|/l_unsafe,     '&#187;&#124;&#171;', $RT::VERSION, '2019', '<a href="http://www.bestpractical.com?rt='.$RT::VERSION.'">Best Practical Solutions, LLC</a>', &>[_1] RT [_2] Copyright 1996-[_3] [_4].</&>
+ </span></p>
+ % if (!$Menu) {
+   <p id="legal"><&|/l_unsafe, '<a href="http://www.gnu.org/licenses/gpl-2.0.html">', '</a>' &>Distributed under [_1]version 2 of the GNU GPL[_2].</&><br /><&|/l_unsafe, '<a href="mailto:sales@bestpractical.com">sales@bestpractical.com</a>' &>To inquire about support, training, custom development or licensing, please contact [_1].</&><br /></p>
+ % }
++% }
+ </div>
+ % if ($Debug >= 2 ) {
+ % require Data::Dumper;
+diff -ru rt-4.4.4_vanilla/share/html/Elements/Login rt-4.4.4_front-page-stripdown/share/html/Elements/Login
+--- rt-4.4.4_vanilla/share/html/Elements/Login	2019-03-05 15:06:02.000000000 +0000
++++ rt-4.4.4_front-page-stripdown/share/html/Elements/Login	2020-04-15 10:12:49.370200119 +0000
+@@ -59,7 +59,7 @@
+ % $m->callback( %ARGS, CallbackName => 'BeforeForm' );
+ 
+ <div id="login-box">
+-<&| /Widgets/TitleBox, title => loc('Login'), titleright => $RT::VERSION, hideable => 0 &>
++<&| /Widgets/TitleBox, title => loc('Login'), titleright => '', hideable => 0 &>
+ 
+ <& LoginRedirectWarning, %ARGS &>
+ 

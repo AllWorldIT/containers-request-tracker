@@ -1,0 +1,15 @@
+diff -ru rt-4.4.4_vanilla/share/html/Elements/LoginHelp rt-4.4.4_contact-generic/share/html/Elements/LoginHelp
+--- rt-4.4.4_vanilla/share/html/Elements/LoginHelp	2019-03-05 15:06:02.000000000 +0000
++++ rt-4.4.4_contact-generic/share/html/Elements/LoginHelp	2020-04-15 10:19:54.987543469 +0000
+@@ -45,9 +45,11 @@
+ %# those contributions and any derivatives thereof.
+ %#
+ %# END BPS TAGGED BLOCK }}}
++% if (0) {
+ <div class="login-help">
+ <&|/l, RT->Config->Get('OwnerEmail')&>For local help, please contact [_1]</&>
+ </div>
++% }
+ <%init>
+ my $source = RT->Config->Meta('OwnerEmail')->{Source};
+ return unless $source->{SiteConfig} or $source->{Extension};

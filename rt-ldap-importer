@@ -1,0 +1,8 @@
+#!/bin/sh
+
+sleep 5
+
+cd /opt/rt4
+echo "INFO: Starting LDAP sync..."
+sbin/rt-ldapimport --import "$@"
+echo "INFO: LDAP sync done"
