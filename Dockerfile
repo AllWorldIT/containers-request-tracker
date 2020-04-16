@@ -1,0 +1,194 @@
+FROM docker.io/allworldit/base
+
+LABEL maintainer="Nigel Kukard <nkukard@LBSD.net>"
+
+ENV RT_VERSION=4.4.4
+ENV RT_EXTENSION_JSGANTT=1.04
+ENV RT_EXTENSION_REPEATTICKET=1.11
+ENV RT_EXTENSION_RESETPASSWORD=1.05
+
+# Copy in patches so we can patch below...
+COPY patches/ /root/patches/
+
+RUN set -eux; \
+	true "Nginx"; \
+	apk add --no-cache nginx; \
+	ln -sf /dev/stdout /var/log/nginx/access.log; \
+	ln -sf /dev/stderr /var/log/nginx/error.log; \
+	true "Spawn-FCGI"; \
+	apk add --no-cache spawn-fcgi; \
+	true "MariaDB"; \
+	apk add --no-cache mariadb mariadb-client mariadb-server-utils pwgen; \
+	true "Perl"; \
+	apk add --no-cache perl; \
+#	true "Groups"; \
+#	addgroup -g 82 -S www-data; \
+	true "Users"; \
+	adduser -u 82 -D -S -H -h /var/www/html -G www-data www-data; \
+	adduser -u 500 -D -H -h /opt/rt -G www-data -g 'RT user' rt; \
+	true "RT requirements"; \
+	apk add --no-cache \
+		perl \
+		perl-libwww \
+		perl-term-readkey \
+		perl-html-scrubber \
+		perl-css-squish \
+		perl-devel-globaldestruction \
+		perl-xml-rss \
+		perl-data-page \
+		perl-html-mason \
+		perl-html-mason-psgihandler \
+		perl-symbol-global-name \
+		perl-datetime-format-natural \
+		perl-business-hours \
+		perl-plack \
+		perl-text-template \
+		perl-html-parser \
+		perl-module-refresh \
+		perl-net-ip \
+		perl-html-rewriteattributes \
+		perl-convert-color \
+		perl-locale-maketext-fuzzy \
+		perl-data-guid \
+		perl-regexp-common \
+		perl-scope-upper \
+		perl-mime-tools \
+		perl-regexp-common-net-cidr \
+		perl-text-password-pronounceable \
+		perl-html-formattext-withlinks-andtables \
+		perl-json \
+		perl-email-address \
+		perl-locale-maketext-lexicon \
+		perl-module-versions-report \
+		perl-tree-simple \
+		perl-date-extract \
+		perl-mime-types \
+		perl-universal-require \
+		perl-log-dispatch \
+		perl-date-manip \
+		perl-net-cidr \
+		perl-text-wrapper \
+		perl-text-quoted \
+		perl-html-quoted \
+		perl-email-address-list \
+		perl-regexp-ipv6 \
+		perl-css-minifier-xs \
+		perl-apache-session \
+		perl-role-basic \
+		perl-data-page-pageset \
+		perl-crypt-eksblowfish \
+		perl-javascript-minifier-xs \
+		perl-data-ical \
+		perl-text-wikiformat \
+		perl-cgi-emulate-psgi \
+		perl-starlet \
+		perl-fcgi \
+		perl-lwp-protocol-https \
+		perl-mozilla-ca \
+		perl-fcgi-procmanager \
+		perl-net-ldap \
+		perl-gd \
+		perl-graphviz \
+		perl-string-shellquote \
+		perl-crypt-x509 \
+		mariadb-connector-c \
+		perl-dbi \
+		perl-dbd-mysql \
+		# DO NOT ADD, CRASHES DUE TO USE AFTER DISCONNECT
+#		perl-dbix-searchbuilder \
+		# DBIx::SearchBuilder deps
+		perl-class-returnvalue perl-cache-simple-timedexpiry perl-class-accessor perl-clone perl-want perl-dbix-dbschema \
+	; \
+	true "RT requirements: from CPAN"; \
+	apk add --no-cache --virtual .build-deps \
+		make perl-dev perl-module-install \
+		# DBIx::SearchBuilder
+		alpine-sdk perl-dbd-sqlite perl-want; \
+	# CHECK ALPINE: 3.12
+	cpan install Time::ParseDate; \
+	\
+	# DO NOT REMOVE, FIXES SEGFAULT CRASH
+	true "Build DBIx::SearchBuilder"; \
+	cd /root; \
+	wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/DBIx-SearchBuilder-1.67.tar.gz"; \
+	tar zxvf "DBIx-SearchBuilder-1.67.tar.gz"; \
+	cd "DBIx-SearchBuilder-1.67"; \
+	patch -p1 < /root/patches/DBIx-SearchBuilder/DBIx-SearchBuilder-1.67_mariadb-fix.patch; \
+	perl Makefile.PL; \
+	make; make install; \
+	cd ..; rm -rf "DBIx-SearchBuilder-1.67"; \
+	\
+	true "RT download"; \
+	cd /root; \
+	wget "https://download.bestpractical.com/pub/rt/release/rt-${RT_VERSION}.tar.gz"; \
+	tar -zxvf "rt-${RT_VERSION}.tar.gz"; \
+	cd "rt-${RT_VERSION}"; \
+	true "RT patching"; \
+	for i in /root/patches/*.patch; do patch -p1 < $i; done; \
+	true "RT configuration"; \
+	./configure --enable-externalauth; \
+	true "RT dependency test"; \
+	make testdeps; \
+	true "RT install"; \
+	make install; \
+	mkdir /opt/rt4/local/sbin; \
+	cd ..; rm -rf "rt-${RT_VERSION}"; \
+	\
+	true "RT extension RT::Extension::RepeatTicket"; \
+	cd /root; \
+	wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/RT-Extension-RepeatTicket-${RT_EXTENSION_REPEATTICKET}.tar.gz"; \
+	tar -zxvf "RT-Extension-RepeatTicket-${RT_EXTENSION_REPEATTICKET}.tar.gz"; \
+	cd "RT-Extension-RepeatTicket-${RT_EXTENSION_REPEATTICKET}"; \
+	perl Makefile.PL; \
+	make; make install; \
+	cd ..; rm -rf "RT-Extension-RepeatTicket-${RT_EXTENSION_REPEATTICKET}"; \
+	\
+	true "RT extension RT::Extension::JSGantt"; \
+	cd /root; \
+	wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/RT-Extension-JSGantt-${RT_EXTENSION_JSGANTT}.tar.gz"; \
+	tar -zxvf "RT-Extension-JSGantt-${RT_EXTENSION_JSGANTT}.tar.gz"; \
+	cd "RT-Extension-JSGantt-${RT_EXTENSION_JSGANTT}"; \
+	perl Makefile.PL; \
+	make; make install; \
+	cd ..; rm -rf "RT-Extension-JSGantt-${RT_EXTENSION_JSGANTT}"; \
+	\
+	true "RT extension RT::Extension::ResetPassword"; \
+	cd /root; \
+	wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/RT-Extension-ResetPassword-${RT_EXTENSION_RESETPASSWORD}.tar.gz"; \
+	tar -zxvf "RT-Extension-ResetPassword-${RT_EXTENSION_RESETPASSWORD}.tar.gz"; \
+	cd "RT-Extension-ResetPassword-${RT_EXTENSION_RESETPASSWORD}"; \
+	perl Makefile.PL; \
+	make; make install; \
+	cd ..; rm -rf "RT-Extension-ResetPassword-${RT_EXTENSION_RESETPASSWORD}"; \
+	\
+	true "Cleanup"; \
+	apk del .build-deps; \
+	rm -rf "/root/rt-${RT_VERSION}"; \
+	rm -rf /root/.cpan; \
+	rm -f /var/cache/apk/*
+
+## Nginx configuration
+COPY etc/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY etc/nginx/conf.d/rt.conf /etc/nginx/conf.d/default.conf
+COPY etc/nginx/rt.conf.fastcgi /etc/nginx/rt.conf.fastcgi
+COPY etc/supervisor/conf.d/nginx.conf /etc/supervisor/conf.d/nginx.conf
+COPY nginx-init.sh /docker-entrypoint-init.d/50-nginx-init.sh
+EXPOSE 80
+
+# spawn-fcgi
+COPY etc/supervisor/conf.d/spawn-fcgi.conf /etc/supervisor/conf.d/spawn-fcgi.conf
+
+# MySQL
+COPY etc/my.cnf.d/docker.cnf /etc/my.cnf.d/docker.cnf
+COPY etc/supervisor/conf.d/mariadb.conf /etc/supervisor/conf.d/mariadb.conf
+COPY mariadb-init.sh /docker-entrypoint-init.d/50-mariadb.sh
+VOLUME ["/var/lib/mysql"]
+
+# RT
+COPY rt-ldap-importer /usr/local/sbin/
+RUN set -eux \
+		chown root:root /usr/local/sbin/rt-ldap-importer; \
+		chmod 0755 /usr/local/sbin/rt-ldap-importer
+COPY rt-init.sh /docker-entrypoint-init.d/70-rt.sh
+#COPY backup /root/
+
