@@ -164,7 +164,7 @@ RUN set -eux; \
 	true "Cleanup"; \
 	apk del .build-deps; \
 	rm -rf "/root/rt-${RT_VERSION}"; \
-	rm -rf /root/.cpan; \
+	rm -rf /root/.cpan /root/patches; \
 	rm -f /var/cache/apk/*
 
 ## Nginx configuration
@@ -173,22 +173,53 @@ COPY etc/nginx/conf.d/rt.conf /etc/nginx/conf.d/default.conf
 COPY etc/nginx/rt.conf.fastcgi /etc/nginx/rt.conf.fastcgi
 COPY etc/supervisor/conf.d/nginx.conf /etc/supervisor/conf.d/nginx.conf
 COPY nginx-init.sh /docker-entrypoint-init.d/50-nginx-init.sh
+RUN set -eux \
+		chown root:root \
+			/etc/nginx/nginx.conf \
+			/etc/nginx/conf.d/default.conf \
+			/etc/nginx/rt.conf.fastcgi \
+			/etc/supervisor/conf.d/nginx.conf \
+			/docker-entrypoint-init.d/50-nginx-init.sh; \
+		chmod 0644 \
+			/etc/nginx/nginx.conf \
+			/etc/nginx/conf.d/default.conf \
+			/etc/nginx/rt.conf.fastcgi \
+			/etc/supervisor/conf.d/nginx.conf; \
+		chmod 0755 \
+			/docker-entrypoint-init.d/50-nginx-init.sh
 EXPOSE 80
 
 # spawn-fcgi
 COPY etc/supervisor/conf.d/spawn-fcgi.conf /etc/supervisor/conf.d/spawn-fcgi.conf
+RUN set -eux \
+		chown root:root /etc/supervisor/conf.d/spawn-fcgi.conf; \
+		chmod 0644 /etc/supervisor/conf.d/spawn-fcgi.conf
 
 # MySQL
 COPY etc/my.cnf.d/docker.cnf /etc/my.cnf.d/docker.cnf
 COPY etc/supervisor/conf.d/mariadb.conf /etc/supervisor/conf.d/mariadb.conf
 COPY mariadb-init.sh /docker-entrypoint-init.d/50-mariadb.sh
+RUN set -eux \
+		chown root:root \
+			/etc/my.cnf.d/docker.cnf \
+			/etc/supervisor/conf.d/mariadb.conf \
+			/docker-entrypoint-init.d/50-mariadb.sh; \
+		chmod 0644 \
+			/etc/my.cnf.d/docker.cnf \
+			/etc/supervisor/conf.d/mariadb.conf; \
+		chmod 0755 \
+			/docker-entrypoint-init.d/50-mariadb.sh
 VOLUME ["/var/lib/mysql"]
 
 # RT
 COPY rt-ldap-importer /usr/local/sbin/
-RUN set -eux \
-		chown root:root /usr/local/sbin/rt-ldap-importer; \
-		chmod 0755 /usr/local/sbin/rt-ldap-importer
 COPY rt-init.sh /docker-entrypoint-init.d/70-rt.sh
+RUN set -eux \
+		chown root:root \
+			/usr/local/sbin/rt-ldap-importer \
+			/docker-entrypoint-init.d/70-rt.sh; \
+		chmod 0755 \
+			/usr/local/sbin/rt-ldap-importer \
+			/docker-entrypoint-init.d/70-rt.sh
 #COPY backup /root/
 
