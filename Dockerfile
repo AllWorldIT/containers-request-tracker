@@ -197,27 +197,33 @@ RUN set -eux \
 COPY etc/my.cnf.d/docker.cnf /etc/my.cnf.d/docker.cnf
 COPY etc/supervisor/conf.d/mariadb.conf /etc/supervisor/conf.d/mariadb.conf
 COPY init.d/50-mariadb.sh /docker-entrypoint-init.d/50-mariadb.sh
+COPY pre-init-tests.d/50-mariadb.sh /docker-entrypoint-pre-init-tests.d/50-mariadb.sh
 RUN set -eux \
 		chown root:root \
 			/etc/my.cnf.d/docker.cnf \
 			/etc/supervisor/conf.d/mariadb.conf \
-			/docker-entrypoint-init.d/50-mariadb.sh; \
+			/docker-entrypoint-init.d/50-mariadb.sh \
+			/docker-entrypoint-pre-init-tests.d/50-mariadb.sh; \
 		chmod 0644 \
 			/etc/my.cnf.d/docker.cnf \
 			/etc/supervisor/conf.d/mariadb.conf; \
 		chmod 0755 \
-			/docker-entrypoint-init.d/50-mariadb.sh
+			/docker-entrypoint-init.d/50-mariadb.sh \
+			/docker-entrypoint-pre-init-tests.d/50-mariadb.sh
 VOLUME ["/var/lib/mysql"]
 
 # RT
 COPY sbin/rt-ldap-importer /usr/local/sbin/
 COPY init.d/70-rt.sh /docker-entrypoint-init.d/70-rt.sh
+COPY pre-init-tests.d/50-rt.sh /docker-entrypoint-pre-init-tests.d/50-rt.sh
 RUN set -eux \
 		chown root:root \
 			/usr/local/sbin/rt-ldap-importer \
-			/docker-entrypoint-init.d/70-rt.sh; \
+			/docker-entrypoint-init.d/70-rt.sh \
+			/docker-entrypoint-pre-init-tests.d/50-rt.sh; \
 		chmod 0755 \
 			/usr/local/sbin/rt-ldap-importer \
-			/docker-entrypoint-init.d/70-rt.sh
+			/docker-entrypoint-init.d/70-rt.sh \
+			/docker-entrypoint-pre-init-tests.d/50-rt.sh
 #COPY backup /root/
 
