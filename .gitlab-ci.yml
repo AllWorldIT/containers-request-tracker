@@ -21,8 +21,10 @@ build:
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build --pull -t $CONTAINER_TEST_IMAGE .
-    - docker push $CONTAINER_TEST_IMAGE
+    # Only push the image if its not master
+    - if [ "$CONTAINER_TEST_IMAGE" != "master" ]; then docker push $CONTAINER_TEST_IMAGE; fi
 
+# Releases are only done for the master repository, which maps to "latest"
 release-image:
   stage: release
   script:
