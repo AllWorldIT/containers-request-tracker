@@ -1,4 +1,4 @@
-FROM docker.io/allworldit/base
+FROM allworldit/docker/base
 
 LABEL maintainer="Nigel Kukard <nkukard@LBSD.net>"
 
