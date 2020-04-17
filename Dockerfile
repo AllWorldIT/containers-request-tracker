@@ -1,5 +1,6 @@
-FROM docker.io/allworldit/base
+FROM registry.gitlab.iitsp.com/allworldit/docker/base
 
+ARG VERSION_INFO
 LABEL maintainer="Nigel Kukard <nkukard@LBSD.net>"
 
 ENV RT_VERSION=4.4.4
@@ -107,19 +108,20 @@ RUN set -eux; \
 	# CHECK ALPINE: 3.12
 	cpan install Time::ParseDate; \
 	\
+	# Make build directory
+	mkdir /root/build; \
 	# DO NOT REMOVE, FIXES SEGFAULT CRASH
 	true "Build DBIx::SearchBuilder"; \
-	cd /root; \
+	cd /root/build; \
 	wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/DBIx-SearchBuilder-1.67.tar.gz"; \
 	tar zxvf "DBIx-SearchBuilder-1.67.tar.gz"; \
 	cd "DBIx-SearchBuilder-1.67"; \
 	patch -p1 < /root/patches/DBIx-SearchBuilder/DBIx-SearchBuilder-1.67_mariadb-fix.patch; \
 	perl Makefile.PL; \
 	make; make install; \
-	cd ..; rm -rf "DBIx-SearchBuilder-1.67"; \
 	\
 	true "RT download"; \
-	cd /root; \
+	cd /root/build; \
 	wget "https://download.bestpractical.com/pub/rt/release/rt-${RT_VERSION}.tar.gz"; \
 	tar -zxvf "rt-${RT_VERSION}.tar.gz"; \
 	cd "rt-${RT_VERSION}"; \
@@ -131,40 +133,36 @@ RUN set -eux; \
 	make testdeps; \
 	true "RT install"; \
 	make install; \
-	mkdir /opt/rt4/local/sbin; \
-	cd ..; rm -rf "rt-${RT_VERSION}"; \
 	\
 	true "RT extension RT::Extension::RepeatTicket"; \
-	cd /root; \
+	cd /root/build; \
 	wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/RT-Extension-RepeatTicket-${RT_EXTENSION_REPEATTICKET}.tar.gz"; \
 	tar -zxvf "RT-Extension-RepeatTicket-${RT_EXTENSION_REPEATTICKET}.tar.gz"; \
 	cd "RT-Extension-RepeatTicket-${RT_EXTENSION_REPEATTICKET}"; \
 	perl Makefile.PL; \
 	make; make install; \
-	cd ..; rm -rf "RT-Extension-RepeatTicket-${RT_EXTENSION_REPEATTICKET}"; \
 	\
 	true "RT extension RT::Extension::JSGantt"; \
-	cd /root; \
+	cd /root/build; \
 	wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/RT-Extension-JSGantt-${RT_EXTENSION_JSGANTT}.tar.gz"; \
 	tar -zxvf "RT-Extension-JSGantt-${RT_EXTENSION_JSGANTT}.tar.gz"; \
 	cd "RT-Extension-JSGantt-${RT_EXTENSION_JSGANTT}"; \
 	perl Makefile.PL; \
 	make; make install; \
-	cd ..; rm -rf "RT-Extension-JSGantt-${RT_EXTENSION_JSGANTT}"; \
 	\
 	true "RT extension RT::Extension::ResetPassword"; \
-	cd /root; \
+	cd /root/build; \
 	wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/RT-Extension-ResetPassword-${RT_EXTENSION_RESETPASSWORD}.tar.gz"; \
 	tar -zxvf "RT-Extension-ResetPassword-${RT_EXTENSION_RESETPASSWORD}.tar.gz"; \
 	cd "RT-Extension-ResetPassword-${RT_EXTENSION_RESETPASSWORD}"; \
 	perl Makefile.PL; \
 	make; make install; \
-	cd ..; rm -rf "RT-Extension-ResetPassword-${RT_EXTENSION_RESETPASSWORD}"; \
 	\
+	true "Versioning"; \
+	if [ -n "$VERSION_INFO" ]; then echo "$VERSION_INFO" >> /.VERSION_INFO; fi; \
 	true "Cleanup"; \
 	apk del .build-deps; \
-	rm -rf "/root/rt-${RT_VERSION}"; \
-	rm -rf /root/.cpan /root/patches; \
+	rm -rf /root/.cpan /root/patches /root/build; \
 	rm -f /var/cache/apk/*
 
 ## Nginx configuration
@@ -172,21 +170,21 @@ COPY etc/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY etc/nginx/conf.d/rt.conf /etc/nginx/conf.d/default.conf
 COPY etc/nginx/rt.conf.fastcgi /etc/nginx/rt.conf.fastcgi
 COPY etc/supervisor/conf.d/nginx.conf /etc/supervisor/conf.d/nginx.conf
-COPY nginx-init.sh /docker-entrypoint-init.d/50-nginx-init.sh
+COPY init.d/50-nginx.sh /docker-entrypoint-init.d/50-nginx.sh
 RUN set -eux \
 		chown root:root \
 			/etc/nginx/nginx.conf \
 			/etc/nginx/conf.d/default.conf \
 			/etc/nginx/rt.conf.fastcgi \
 			/etc/supervisor/conf.d/nginx.conf \
-			/docker-entrypoint-init.d/50-nginx-init.sh; \
+			/docker-entrypoint-init.d/50-nginx.sh; \
 		chmod 0644 \
 			/etc/nginx/nginx.conf \
 			/etc/nginx/conf.d/default.conf \
 			/etc/nginx/rt.conf.fastcgi \
 			/etc/supervisor/conf.d/nginx.conf; \
 		chmod 0755 \
-			/docker-entrypoint-init.d/50-nginx-init.sh
+			/docker-entrypoint-init.d/50-nginx.sh
 EXPOSE 80
 
 # spawn-fcgi
@@ -195,31 +193,37 @@ RUN set -eux \
 		chown root:root /etc/supervisor/conf.d/spawn-fcgi.conf; \
 		chmod 0644 /etc/supervisor/conf.d/spawn-fcgi.conf
 
-# MySQL
+# MariaDB
 COPY etc/my.cnf.d/docker.cnf /etc/my.cnf.d/docker.cnf
 COPY etc/supervisor/conf.d/mariadb.conf /etc/supervisor/conf.d/mariadb.conf
-COPY mariadb-init.sh /docker-entrypoint-init.d/50-mariadb.sh
+COPY init.d/50-mariadb.sh /docker-entrypoint-init.d/50-mariadb.sh
+COPY pre-init-tests.d/50-mariadb.sh /docker-entrypoint-pre-init-tests.d/50-mariadb.sh
 RUN set -eux \
 		chown root:root \
 			/etc/my.cnf.d/docker.cnf \
 			/etc/supervisor/conf.d/mariadb.conf \
-			/docker-entrypoint-init.d/50-mariadb.sh; \
+			/docker-entrypoint-init.d/50-mariadb.sh \
+			/docker-entrypoint-pre-init-tests.d/50-mariadb.sh; \
 		chmod 0644 \
 			/etc/my.cnf.d/docker.cnf \
 			/etc/supervisor/conf.d/mariadb.conf; \
 		chmod 0755 \
-			/docker-entrypoint-init.d/50-mariadb.sh
+			/docker-entrypoint-init.d/50-mariadb.sh \
+			/docker-entrypoint-pre-init-tests.d/50-mariadb.sh
 VOLUME ["/var/lib/mysql"]
 
 # RT
-COPY rt-ldap-importer /usr/local/sbin/
-COPY rt-init.sh /docker-entrypoint-init.d/70-rt.sh
+COPY sbin/rt-ldap-importer /usr/local/sbin/
+COPY init.d/70-rt.sh /docker-entrypoint-init.d/70-rt.sh
+COPY pre-init-tests.d/50-rt.sh /docker-entrypoint-pre-init-tests.d/50-rt.sh
 RUN set -eux \
 		chown root:root \
 			/usr/local/sbin/rt-ldap-importer \
-			/docker-entrypoint-init.d/70-rt.sh; \
+			/docker-entrypoint-init.d/70-rt.sh \
+			/docker-entrypoint-pre-init-tests.d/50-rt.sh; \
 		chmod 0755 \
 			/usr/local/sbin/rt-ldap-importer \
-			/docker-entrypoint-init.d/70-rt.sh
+			/docker-entrypoint-init.d/70-rt.sh \
+			/docker-entrypoint-pre-init-tests.d/50-rt.sh
 #COPY backup /root/
 

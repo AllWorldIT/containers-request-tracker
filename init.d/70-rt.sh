@@ -127,6 +127,9 @@ mkdir /var/lib/nginx/cache
 chown nginx:root /var/lib/nginx/cache
 chmod 700 /var/lib/nginx/cache
 
+# Setup Postfix transport for rt4
+echo 'rt4 unix - n n - - pipe flags=DORhu user=rt argv=/opt/rt4/bin/rt-mailgate --queue $nexthop --action correspond --url http://localhost/' >> /etc/postfix/master.cf
+
 # Setup crontab if we have LDAP configuration
 if grep -q -E '^\s*Set\(\s*\$LDAPUpdateUsers' /opt/rt4/etc/RT_SiteConfig.d/*; then
 	cat <<EOF | crontab -u rt -
