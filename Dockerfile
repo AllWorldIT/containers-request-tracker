@@ -1,4 +1,4 @@
-FROM allworldit/docker/base
+FROM registry.gitlab.iitsp.com/allworldit/docker/base
 
 LABEL maintainer="Nigel Kukard <nkukard@LBSD.net>"
 
