@@ -1,4 +1,4 @@
-FROM registry.gitlab.iitsp.com/allworldit/docker/base
+FROM registry.gitlab.iitsp.com/allworldit/docker/alpine:latest
 
 ARG VERSION_INFO
 LABEL maintainer="Nigel Kukard <nkukard@LBSD.net>"
@@ -99,14 +99,13 @@ RUN set -eux; \
 #		perl-dbix-searchbuilder \
 		# DBIx::SearchBuilder deps
 		perl-class-returnvalue perl-cache-simple-timedexpiry perl-class-accessor perl-clone perl-want perl-dbix-dbschema \
+		perl-time-parsedate \
 	; \
 	true "RT requirements: from CPAN"; \
 	apk add --no-cache --virtual .build-deps \
 		make perl-dev perl-module-install \
 		# DBIx::SearchBuilder
 		alpine-sdk perl-dbd-sqlite perl-want; \
-	# CHECK ALPINE: 3.12
-	cpan install Time::ParseDate; \
 	\
 	# Make build directory
 	mkdir /root/build; \
