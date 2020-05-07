@@ -7,8 +7,9 @@ include:
 test:
   stage: test
   script:
-    - if [ -n "$CI_BUILD_TAG" ]; then export CONTAINER_TEST_IMAGE="$CI_REGISTRY_IMAGE:$CI_BUILD_TAG"; else export CONTAINER_TEST_IMAGE="$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"; fi
-    - docker pull "$CONTAINER_TEST_IMAGE"
-    - mkdir /root/mysql
-    - docker run -e CI=true --mount type=bind,source=/tmp,destination=/var/lib/mysql "$CONTAINER_TEST_IMAGE"
+    - docker pull "${CI_IMAGE}"
+    - docker run -e CI=true --mount type=bind,source=/tmp,destination=/var/lib/mysql "${CI_IMAGE}"
+  artifacts:
+    paths:
+      - .TIMESTAMP
 
