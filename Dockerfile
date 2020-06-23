@@ -170,7 +170,7 @@ COPY etc/nginx/conf.d/rt.conf /etc/nginx/conf.d/default.conf
 COPY etc/nginx/rt.conf.fastcgi /etc/nginx/rt.conf.fastcgi
 COPY etc/supervisor/conf.d/nginx.conf /etc/supervisor/conf.d/nginx.conf
 COPY init.d/50-nginx.sh /docker-entrypoint-init.d/50-nginx.sh
-RUN set -eux \
+RUN set -eux; \
 		chown root:root \
 			/etc/nginx/nginx.conf \
 			/etc/nginx/conf.d/default.conf \
@@ -188,7 +188,7 @@ EXPOSE 80
 
 # spawn-fcgi
 COPY etc/supervisor/conf.d/spawn-fcgi.conf /etc/supervisor/conf.d/spawn-fcgi.conf
-RUN set -eux \
+RUN set -eux; \
 		chown root:root /etc/supervisor/conf.d/spawn-fcgi.conf; \
 		chmod 0644 /etc/supervisor/conf.d/spawn-fcgi.conf
 
@@ -197,7 +197,7 @@ COPY etc/my.cnf.d/docker.cnf /etc/my.cnf.d/docker.cnf
 COPY etc/supervisor/conf.d/mariadb.conf /etc/supervisor/conf.d/mariadb.conf
 COPY init.d/50-mariadb.sh /docker-entrypoint-init.d/50-mariadb.sh
 COPY pre-init-tests.d/50-mariadb.sh /docker-entrypoint-pre-init-tests.d/50-mariadb.sh
-RUN set -eux \
+RUN set -eux; \
 		chown root:root \
 			/etc/my.cnf.d/docker.cnf \
 			/etc/supervisor/conf.d/mariadb.conf \
@@ -215,7 +215,7 @@ VOLUME ["/var/lib/mysql"]
 COPY sbin/rt-ldap-importer /usr/local/sbin/
 COPY init.d/70-rt.sh /docker-entrypoint-init.d/70-rt.sh
 COPY pre-init-tests.d/50-rt.sh /docker-entrypoint-pre-init-tests.d/50-rt.sh
-RUN set -eux \
+RUN set -eux; \
 		chown root:root \
 			/usr/local/sbin/rt-ldap-importer \
 			/docker-entrypoint-init.d/70-rt.sh \
