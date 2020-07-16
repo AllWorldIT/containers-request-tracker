@@ -25,7 +25,7 @@ EOF
 
 
 # Create new configuration file
-cat <<EOF > /opt/rt4/etc/RT_SiteConfig.d/00-default.pm
+cat <<EOF > /opt/rt5/etc/RT_SiteConfig.d/00-default.pm
 use utf8;
 
 Set(\$DatabaseType, "mysql");
@@ -37,7 +37,7 @@ Set(\$DatabaseName, "$MYSQL_DATABASE");
 Set(\$ExternalStorageCutoffSize, 10_000);
 Set(%ExternalStorage,
 	Type => 'Disk',
-	Path => '/opt/rt4/var/attachments',
+	Path => '/opt/rt5/var/attachments',
 );
 
 require '/opt/rt/RT_SiteConfig.pm';
@@ -48,7 +48,7 @@ EOF
 
 # Link in our own config file...
 if [ -e /opt/rt/RT_SiteConfig.pm ]; then
-	ln -s /opt/rt/RT_SiteConfig.pm /opt/rt4/etc/RT_SiteConfig.d/50-custom.pm
+	ln -s /opt/rt/RT_SiteConfig.pm /opt/rt5/etc/RT_SiteConfig.d/50-custom.pm
 fi
 
 # Make sure we have an attachments directory setup
@@ -58,7 +58,7 @@ fi
 # Link attachments directory in
 chown rt:www-data /opt/rt/var/attachments
 chmod 750 /opt/rt/var/attachments
-ln -s /opt/rt/var/attachments /opt/rt4/var/
+ln -s /opt/rt/var/attachments /opt/rt5/var/
 
 # Make sure we have a shredder directory setup
 if [ ! -d /opt/rt/var/data/RT-Shredder ]; then
@@ -68,16 +68,16 @@ fi
 chown rt:www-data /opt/rt/var/data/RT-Shredder
 chmod 750 /opt/rt/var/data/RT-Shredder
 # Make sure the dir exists
-if [ ! -d /opt/rt4/var/data ]; then
-	mkdir -p /opt/rt4/var/data
+if [ ! -d /opt/rt5/var/data ]; then
+	mkdir -p /opt/rt5/var/data
 fi
 # Link it in
-ln -s /opt/rt/var/data/RT-Shredder /opt/rt4/var/data/
+ln -s /opt/rt/var/data/RT-Shredder /opt/rt5/var/data/
 
 # Reset permissions on local/html directory which could be mapped in
-chown rt:www-data /opt/rt4/local/html
-find /opt/rt4/local/html -type d -print0 | xargs -0 -r chmod 0755
-find /opt/rt4/local/html -type f -print0 | xargs -0 -r chmod 0644
+chown rt:www-data /opt/rt5/local/html
+find /opt/rt5/local/html -type d -print0 | xargs -0 -r chmod 0755
+find /opt/rt5/local/html -type f -print0 | xargs -0 -r chmod 0644
 
 # Start MySQL for possible DB changes
 /usr/bin/mysqld --user=mysql --console &
@@ -88,7 +88,7 @@ if [ ! -e /opt/rt/.RT_VERSION ]; then
 	echo "NOTICE: Initialize RT database"
 	cd /opt/rt
 
-	/usr/bin/perl /opt/rt4/sbin/rt-setup-database --action init --skip-create
+	/usr/bin/perl /opt/rt5/sbin/rt-setup-database --action init --skip-create
 
 	echo "$RT_VERSION" > /opt/rt/.RT_VERSION
 	echo "NOTICE: Done initialize RT database"
@@ -98,9 +98,9 @@ if [ ! -e /opt/rt/.RT_EXTENSION_REPEATTICKET ]; then
 	echo "NOTICE: Initialize RT::Extension::RepeatTicket"
 	cd /opt/rt
 	# Repeat ticket
-	/usr/bin/perl /opt/rt4/sbin/rt-setup-database --action insert --skip-create \
-			--datadir "/opt/rt4/local/plugins/RT-Extension-RepeatTicket/etc" \
-			--datafile "/opt/rt4/local/plugins/RT-Extension-RepeatTicket/etc/initialdata" \
+	/usr/bin/perl /opt/rt5/sbin/rt-setup-database --action insert --skip-create \
+			--datadir "/opt/rt5/local/plugins/RT-Extension-RepeatTicket/etc" \
+			--datafile "/opt/rt5/local/plugins/RT-Extension-RepeatTicket/etc/initialdata" \
 			--package "q[RT::Extension::RepeatTicket]" --ext-version "q[${RT_EXTENSION_REPEATTICKET}]"
 	echo "$RT_EXTENSION_REPEATTICKET" > /opt/rt/.RT_EXTENSION_REPEATTICKET
 	echo "NOTICE: Done initialize RT::Extension::RepeatTicket"
@@ -110,9 +110,9 @@ if [ ! -e /opt/rt/.RT_EXTENSION_RESETPASSWORD ]; then
 	echo "NOTICE: Initialize RT::Extension::ResetPassword"
 	cd /opt/rt
 	# Reset password
-	/usr/bin/perl /opt/rt4/sbin/rt-setup-database --action insert --skip-create \
-			--datadir "/opt/rt4/local/plugins/RT-Extension-ResetPassword/etc" \
-			--datafile "/opt/rt4/local/plugins/RT-Extension-ResetPassword/etc/initialdata" \
+	/usr/bin/perl /opt/rt5/sbin/rt-setup-database --action insert --skip-create \
+			--datadir "/opt/rt5/local/plugins/RT-Extension-ResetPassword/etc" \
+			--datafile "/opt/rt5/local/plugins/RT-Extension-ResetPassword/etc/initialdata" \
 			--package "q[RT::Extension::ResetPassword]" --ext-version "q[${RT_EXTENSION_RESETPASSWORD}]"
 	echo "$RT_EXTENSION_RESETPASSWORD" > /opt/rt/.RT_EXTENSION_RESETPASSWORD
 	echo "NOTICE: Done initialize RT::Extension::ResetPassword"
@@ -127,11 +127,11 @@ mkdir /var/lib/nginx/cache
 chown nginx:root /var/lib/nginx/cache
 chmod 700 /var/lib/nginx/cache
 
-# Setup Postfix transport for rt4
-echo 'rt4 unix - n n - - pipe flags=DORhu user=rt argv=/opt/rt4/bin/rt-mailgate --queue $nexthop --action correspond --url http://localhost/' >> /etc/postfix/master.cf
+# Setup Postfix transport for rt5
+echo 'rt5 unix - n n - - pipe flags=DORhu user=rt argv=/opt/rt5/bin/rt-mailgate --queue $nexthop --action correspond --url http://localhost/' >> /etc/postfix/master.cf
 
 # Setup crontab if we have LDAP configuration
-if grep -q -E '^\s*Set\(\s*\$LDAPUpdateUsers' /opt/rt4/etc/RT_SiteConfig.d/*; then
+if grep -q -E '^\s*Set\(\s*\$LDAPUpdateUsers' /opt/rt5/etc/RT_SiteConfig.d/*; then
 	cat <<EOF | crontab -u rt -
 @reboot /usr/local/sbin/rt-ldap-importer --verbose
 */15 * * * * /usr/local/sbin/rt-ldap-importer

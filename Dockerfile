@@ -3,7 +3,8 @@ FROM registry.gitlab.iitsp.com/allworldit/docker/alpine:latest
 ARG VERSION_INFO
 LABEL maintainer="Nigel Kukard <nkukard@LBSD.net>"
 
-ENV RT_VERSION=4.4.4
+ENV RTHOME=/opt/rt5
+ENV RT_VERSION=5.0.0
 ENV RT_EXTENSION_JSGANTT=1.04
 ENV RT_EXTENSION_REPEATTICKET=1.11
 ENV RT_EXTENSION_RESETPASSWORD=1.05
@@ -95,27 +96,49 @@ RUN set -eux; \
 		mariadb-connector-c \
 		perl-dbi \
 		perl-dbd-mysql \
-		# DO NOT ADD, CRASHES DUE TO USE AFTER DISCONNECT
+		# DO NOT ADD, CRASHES DUE TO USE AFTER DISCONNECT - CAN BE USED WHEN HITS 1.68
 #		perl-dbix-searchbuilder \
 		# DBIx::SearchBuilder deps
 		perl-class-returnvalue perl-cache-simple-timedexpiry perl-class-accessor perl-clone perl-want perl-dbix-dbschema \
 		perl-time-parsedate \
+		perl-encode-hanextra \
+		perl-moose \
+		perl-moosex \
+		perl-json-xs \
+		perl-test-failwarnings \
+		perl-cookie-baker \
+		perl-http-entity-parser \
+		html2text \
 	; \
 	true "RT requirements: from CPAN"; \
 	apk add --no-cache --virtual .build-deps \
 		make perl-dev perl-module-install \
-		# DBIx::SearchBuilder
-		alpine-sdk perl-dbd-sqlite perl-want; \
+		alpine-sdk perl-dbd-sqlite perl-want \
+		perl-app-cpanminus \
+	; \
 	\
+	# Modules not in alpine
+	cpanm --verbose install \
+		Encode::Detect::Detector \
+		HTML::FormatExternal \
+		HTML::Gumbo \
+		Module::Path \
+		MooseX::NonMoose \
+		MooseX::Role::Parameterized \
+		Path::Dispatcher \
+		HTTP::Headers::ActionPack \
+		HTTP::Headers::Fast \
+		IO::Handle::Util \
+		Web::Machine \
+	; \
 	# Make build directory
 	mkdir /root/build; \
 	# DO NOT REMOVE, FIXES SEGFAULT CRASH
 	true "Build DBIx::SearchBuilder"; \
 	cd /root/build; \
-	wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/DBIx-SearchBuilder-1.67.tar.gz"; \
-	tar zxvf "DBIx-SearchBuilder-1.67.tar.gz"; \
-	cd "DBIx-SearchBuilder-1.67"; \
-	patch -p1 < /root/patches/DBIx-SearchBuilder/DBIx-SearchBuilder-1.67_mariadb-fix.patch; \
+	wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/DBIx-SearchBuilder-1.68.tar.gz"; \
+	tar zxvf "DBIx-SearchBuilder-1.68.tar.gz"; \
+	cd "DBIx-SearchBuilder-1.68"; \
 	perl Makefile.PL; \
 	make; make install; \
 	\
@@ -132,6 +155,7 @@ RUN set -eux; \
 	make testdeps; \
 	true "RT install"; \
 	make install; \
+	rm -f "rt-${RT_VERSION}.tar.gz"; \
 	\
 	true "RT extension RT::Extension::RepeatTicket"; \
 	cd /root/build; \
@@ -161,7 +185,7 @@ RUN set -eux; \
 	if [ -n "$VERSION_INFO" ]; then echo "$VERSION_INFO" >> /.VERSION_INFO; fi; \
 	true "Cleanup"; \
 	apk del .build-deps; \
-	rm -rf /root/.cpan /root/patches /root/build; \
+	rm -rf /root/.cpan /root/.cpanm /root/patches /root/build; \
 	rm -f /var/cache/apk/*
 
 ## Nginx configuration

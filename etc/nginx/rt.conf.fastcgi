@@ -1,4 +1,4 @@
-fastcgi_pass unix:/run/rt4.sock;
+fastcgi_pass unix:/run/rt.sock;
 include fastcgi_params;
 fastcgi_param SCRIPT_NAME "";
 fastcgi_param PATH_INFO $uri;
