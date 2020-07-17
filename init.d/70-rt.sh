@@ -40,33 +40,32 @@ Set(%ExternalStorage,
 	Path => '/opt/rt5/var/attachments',
 );
 
-require '/opt/rt/RT_SiteConfig.pm';
-
-1;
 EOF
 
 
 # Link in our own config file...
-if [ -e /opt/rt/RT_SiteConfig.pm ]; then
-	ln -s /opt/rt/RT_SiteConfig.pm /opt/rt5/etc/RT_SiteConfig.d/50-custom.pm
+if [ ! -e /opt/rt/RT_SiteConfig.pm ]; then
+	touch /opt/rt/RT_SiteConfig.pm
+	chown rt:www-data /opt/rt/RT_SiteConfig.pm
+	chmod 640 /opt/rt/RT_SiteConfig.pm
 fi
+ln -s /opt/rt/RT_SiteConfig.pm /opt/rt5/etc/RT_SiteConfig.d/50-custom.pm
 
 # Make sure we have an attachments directory setup
 if [ ! -d /opt/rt/var/attachments ]; then
 	mkdir -p /opt/rt/var/attachments
+	chown rt:www-data /opt/rt/var/attachments
+	chmod 750 /opt/rt/var/attachments
 fi
 # Link attachments directory in
-chown rt:www-data /opt/rt/var/attachments
-chmod 750 /opt/rt/var/attachments
 ln -s /opt/rt/var/attachments /opt/rt5/var/
 
 # Make sure we have a shredder directory setup
 if [ ! -d /opt/rt/var/data/RT-Shredder ]; then
 	mkdir -p /opt/rt/var/data/RT-Shredder
+	chown rt:www-data /opt/rt/var/data/RT-Shredder
+	chmod 750 /opt/rt/var/data/RT-Shredder
 fi
-# Check perms
-chown rt:www-data /opt/rt/var/data/RT-Shredder
-chmod 750 /opt/rt/var/data/RT-Shredder
 # Make sure the dir exists
 if [ ! -d /opt/rt5/var/data ]; then
 	mkdir -p /opt/rt5/var/data
@@ -128,7 +127,7 @@ chown nginx:root /var/lib/nginx/cache
 chmod 700 /var/lib/nginx/cache
 
 # Setup Postfix transport for rt5
-echo 'rt5 unix - n n - - pipe flags=DORhu user=rt argv=/opt/rt5/bin/rt-mailgate --queue $nexthop --action correspond --url http://localhost/' >> /etc/postfix/master.cf
+echo 'rt unix - n n - - pipe flags=DORhu user=rt argv=/opt/rt5/bin/rt-mailgate --queue $nexthop --action correspond --url http://localhost/' >> /etc/postfix/master.cf
 
 # Setup crontab if we have LDAP configuration
 if grep -q -E '^\s*Set\(\s*\$LDAPUpdateUsers' /opt/rt5/etc/RT_SiteConfig.d/*; then
