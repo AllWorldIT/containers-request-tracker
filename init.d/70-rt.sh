@@ -23,6 +23,11 @@ user=$MYSQL_USER
 password=$MYSQL_PASSWORD
 EOF
 
+# Save root password for RT access
+cat <<EOF > /root/.rt_dba_password
+$MYSQL_ROOT_PASSWORD
+EOF
+
 
 # Create new configuration file
 cat <<EOF > /opt/rt5/etc/RT_SiteConfig.d/00-default.pm
@@ -92,6 +97,16 @@ if [ ! -e /opt/rt/.RT_VERSION ]; then
 	echo "$RT_VERSION" > /opt/rt/.RT_VERSION
 	echo "NOTICE: Done initialize RT database"
 fi
+
+RT_VERSION_OLD=$(cat /opt/rt/.RT_VERSION)
+if [ "$RT_VERSION" != "$RT_VERSION_OLD" ]; then
+	/usr/bin/perl /opt/rt5/sbin/rt-setup-database --action upgrade \
+			--root-password-file /root/.rt_dba_password \
+			--upgrade-from "$RT_VERSION_OLD"
+	# Update RT version
+	echo "$RT_VERSION" > /opt/rt/.RT_VERSION
+fi
+
 
 if [ ! -e /opt/rt/.RT_EXTENSION_REPEATTICKET ]; then
 	echo "NOTICE: Initialize RT::Extension::RepeatTicket"
