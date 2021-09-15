@@ -4,10 +4,10 @@ ARG VERSION_INFO=
 LABEL maintainer="Nigel Kukard <nkukard@LBSD.net>"
 
 ENV RTHOME=/opt/rt5
-ENV RT_VERSION=5.0.0
-ENV RT_EXTENSION_JSGANTT=1.04
-ENV RT_EXTENSION_REPEATTICKET=1.11
-ENV RT_EXTENSION_RESETPASSWORD=1.05
+ENV RT_VERSION=5.0.2
+ENV RT_EXTENSION_JSGANTT=1.07
+ENV RT_EXTENSION_REPEATTICKET=2.00
+ENV RT_EXTENSION_RESETPASSWORD=1.12
 
 # Copy in patches so we can patch below...
 COPY patches/ /root/patches/
@@ -108,6 +108,7 @@ RUN set -eux; \
 		perl-test-failwarnings \
 		perl-cookie-baker \
 		perl-http-entity-parser \
+		perl-parallel-forkmanager \
 		html2text \
 	; \
 	true "RT requirements: from CPAN"; \
@@ -130,6 +131,7 @@ RUN set -eux; \
 		HTTP::Headers::Fast \
 		IO::Handle::Util \
 		Web::Machine \
+		Text::WordDiff \
 	; \
 	# Make build directory
 	mkdir /root/build; \

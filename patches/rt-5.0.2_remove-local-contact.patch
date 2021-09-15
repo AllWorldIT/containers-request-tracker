@@ -1,0 +1,15 @@
+diff --color -ru rt-5.0.2_vanilla/share/html/Elements/LoginHelp rt-5.0.2_remove-local-contact/share/html/Elements/LoginHelp
+--- rt-5.0.2_vanilla/share/html/Elements/LoginHelp	2021-09-14 21:42:01.000000000 +0000
++++ rt-5.0.2_remove-local-contact/share/html/Elements/LoginHelp	2021-09-15 01:20:43.893001534 +0000
+@@ -45,9 +45,11 @@
+ %# those contributions and any derivatives thereof.
+ %#
+ %# END BPS TAGGED BLOCK }}}
++% if (0) {
+ <div class="login-help">
+ <&|/l, RT->Config->Get('RTSupportEmail')&>For local help, please contact [_1]</&>
+ </div>
++% }
+ <%init>
+ return unless RT->Config->Get('RTSupportEmail');
+ </%init>
