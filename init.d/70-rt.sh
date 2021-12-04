@@ -101,7 +101,7 @@ fi
 RT_VERSION_OLD=$(cat /opt/rt/.RT_VERSION)
 if [ "$RT_VERSION" != "$RT_VERSION_OLD" ]; then
 	echo "NOTICE: Upgrade RT database"
-	cd /opt/rt
+	cd /opt/rt5
 
 	/usr/bin/perl /opt/rt5/sbin/rt-setup-database --action upgrade \
 			--root-password-file /root/.rt_dba_password \
