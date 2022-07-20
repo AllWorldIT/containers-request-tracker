@@ -1,6 +1,6 @@
-diff --color -ru rt-5.0.2_vanilla/share/html/Elements/Footer rt-5.0.2_front-page-stripdown/share/html/Elements/Footer
---- rt-5.0.2_vanilla/share/html/Elements/Footer	2021-09-14 21:42:01.000000000 +0000
-+++ rt-5.0.2_front-page-stripdown/share/html/Elements/Footer	2021-09-15 01:31:16.501275887 +0000
+diff --color -ru rt-5.0.3/share/html/Elements/Footer rt-5.0.3_front-page-stripdown/share/html/Elements/Footer
+--- rt-5.0.3/share/html/Elements/Footer	2022-07-13 13:28:34.000000000 +0000
++++ rt-5.0.3_front-page-stripdown/share/html/Elements/Footer	2022-07-13 17:39:01.315296724 +0000
 @@ -58,15 +58,21 @@
  %     if ($m->{'rt_base_time'}) {
          <span id="time"><&|/l&>Time to display</&>: <%Time::HiRes::tv_interval( $m->{'rt_base_time'} )%> -</span>
@@ -12,7 +12,7 @@ diff --color -ru rt-5.0.2_vanilla/share/html/Elements/Footer rt-5.0.2_front-page
    </div>
    <div class="col-<% $cols %>">
 +% if (0) {
-     <p id="bpscredits" class="text-center"><span><&|/l_unsafe, '2021', '&#187;&#124;&#171;', '<a href="https://bestpractical.com/about">Best Practical Solutions, LLC</a>', &>Copyright 1996-[_1] [_2] [_3].</&></span></p>
+     <p id="bpscredits" class="text-center"><span><&|/l_unsafe, '2022', '&#187;&#124;&#171;', '<a href="https://bestpractical.com/about">Best Practical Solutions, LLC</a>', &>Copyright 1996-[_1] [_2] [_3].</&></span></p>
 +% }
    </div>
  % if (!$Menu) {
@@ -23,9 +23,11 @@ diff --color -ru rt-5.0.2_vanilla/share/html/Elements/Footer rt-5.0.2_front-page
    </div>
  % }
  </div>
-diff --color -ru rt-5.0.2_vanilla/share/html/Elements/Login rt-5.0.2_front-page-stripdown/share/html/Elements/Login
---- rt-5.0.2_vanilla/share/html/Elements/Login	2021-09-14 21:42:01.000000000 +0000
-+++ rt-5.0.2_front-page-stripdown/share/html/Elements/Login	2021-09-15 01:29:58.265151578 +0000
+Only in rt-5.0.3_front-page-stripdown/share/html/Elements: Footer.orig
+Only in rt-5.0.3_front-page-stripdown/share/html/Elements: Footer.rej
+diff --color -ru rt-5.0.3/share/html/Elements/Login rt-5.0.3_front-page-stripdown/share/html/Elements/Login
+--- rt-5.0.3/share/html/Elements/Login	2022-07-13 13:28:34.000000000 +0000
++++ rt-5.0.3_front-page-stripdown/share/html/Elements/Login	2022-07-13 17:37:43.749129472 +0000
 @@ -61,7 +61,7 @@
  % $m->callback( %ARGS, CallbackName => 'BeforeForm' );
  

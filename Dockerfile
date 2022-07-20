@@ -4,7 +4,7 @@ ARG VERSION_INFO=
 LABEL maintainer="Nigel Kukard <nkukard@LBSD.net>"
 
 ENV RTHOME=/opt/rt5
-ENV RT_VERSION=5.0.2
+ENV RT_VERSION=5.0.3
 ENV RT_EXTENSION_JSGANTT=1.07
 ENV RT_EXTENSION_REPEATTICKET=2.00
 ENV RT_EXTENSION_RESETPASSWORD=1.12
@@ -97,7 +97,7 @@ RUN set -eux; \
 		perl-dbi \
 		perl-dbd-mysql \
 		# DO NOT ADD, CRASHES DUE TO USE AFTER DISCONNECT - CAN BE USED WHEN HITS 1.68
-#		perl-dbix-searchbuilder \
+		perl-dbix-searchbuilder \
 		# DBIx::SearchBuilder deps
 		perl-class-returnvalue perl-cache-simple-timedexpiry perl-class-accessor perl-clone perl-want perl-dbix-dbschema \
 		perl-time-parsedate \
@@ -136,13 +136,13 @@ RUN set -eux; \
 	# Make build directory
 	mkdir /root/build; \
 	# DO NOT REMOVE, FIXES SEGFAULT CRASH
-	true "Build DBIx::SearchBuilder"; \
-	cd /root/build; \
-	wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/DBIx-SearchBuilder-1.68.tar.gz"; \
-	tar zxvf "DBIx-SearchBuilder-1.68.tar.gz"; \
-	cd "DBIx-SearchBuilder-1.68"; \
-	perl Makefile.PL; \
-	make; make install; \
+	#true "Build DBIx::SearchBuilder"; \
+	#cd /root/build; \
+	#wget "https://cpan.metacpan.org/authors/id/B/BP/BPS/DBIx-SearchBuilder-1.68.tar.gz"; \
+	#tar zxvf "DBIx-SearchBuilder-1.68.tar.gz"; \
+	#cd "DBIx-SearchBuilder-1.68"; \
+	#perl Makefile.PL; \
+	#make; make install; \
 	\
 	true "RT download"; \
 	cd /root/build; \
