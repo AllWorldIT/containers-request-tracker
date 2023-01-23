@@ -22,3 +22,6 @@
 
 # Lastly we indicate the tests are completed
 touch /PASSED_RT
+
+# Wait for teardown
+sleep 600
