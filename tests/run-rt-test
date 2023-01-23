@@ -27,7 +27,7 @@ check_tests() {
 
 		echo "INFO: Waiting for RequestTracker tests to pass... ${i}s"
 
-		if docker-compose exec powerdns test -e /PASSED_RT; then
+		if docker-compose exec requesttracker test -e /PASSED_RT; then
 			echo "PASSED:   - Tests passed"
 			break
 		fi
