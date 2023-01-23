@@ -12,7 +12,7 @@ test:
     - docker pull "${PIPELINE_IMAGE}"
     - cp -a tests "tests-${CI_COMMIT_SHORT_SHA}-${CI_CONCURRENT_ID}-mysql"
     - cd "tests-${CI_COMMIT_SHORT_SHA}-${CI_CONCURRENT_ID}-mysql"
-    - sed -e "s,@@PIPELINE_IMAGE@@,${PIPELINE_IMAGE}," < docker-compose.yml.mysql.tmpl > docker-compose.yml
+    - sed -e "s,@@PIPELINE_IMAGE@@,${PIPELINE_IMAGE}," < docker-compose.yml.tmpl > docker-compose.yml
     - ./run-rt-test
   artifacts:
     paths:
