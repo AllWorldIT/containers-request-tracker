@@ -217,6 +217,7 @@ COPY sbin/rt-ldap-importer /usr/local/sbin/
 COPY usr/local/share/flexible-docker-containers/init.d/46-rt.sh /usr/local/share/flexible-docker-containers/init.d
 COPY usr/local/share/flexible-docker-containers/pre-init-tests.d/46-rt.sh /usr/local/share/flexible-docker-containers/pre-init-tests.d
 COPY usr/local/share/flexible-docker-containers/tests.d/44-nginx.sh /usr/local/share/flexible-docker-containers/tests.d
+COPY usr/local/share/flexible-docker-containers/tests.d/99-request-tracker.sh /usr/local/share/flexible-docker-containers/tests.d
 RUN set -eux; \
 	true "Setup FCGI cache"; \
 	mkdir -p /var/lib/fcgicache; \
