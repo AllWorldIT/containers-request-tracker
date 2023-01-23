@@ -127,6 +127,7 @@ RUN set -eux; \
 		MooseX::NonMoose \
 		MooseX::Role::Parameterized \
 		Path::Dispatcher \
+		Pod::Select \
 		HTTP::Headers::ActionPack \
 		HTTP::Headers::Fast \
 		IO::Handle::Util \
