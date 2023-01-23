@@ -1,7 +1,11 @@
-FROM registry.gitlab.iitsp.com/allworldit/docker/postfix/v3.17:latest
+FROM registry.conarx.tech/containers/nginx/3.17
+
 
 ARG VERSION_INFO=
-LABEL maintainer="Nigel Kukard <nkukard@LBSD.net>"
+LABEL org.opencontainers.image.authors   = "Nigel Kukard <nkukard@conarx.tech>"
+LABEL org.opencontainers.image.version   = "3.17"
+LABEL org.opencontainers.image.base.name = "registry.conarx.tech/containers/nginx/3.17"
+
 
 ENV RTHOME=/opt/rt5
 ENV RT_VERSION=5.0.3
@@ -9,24 +13,20 @@ ENV RT_EXTENSION_JSGANTT=1.07
 ENV RT_EXTENSION_REPEATTICKET=2.00
 ENV RT_EXTENSION_RESETPASSWORD=1.12
 
+
 # Copy in patches so we can patch below...
 COPY patches/ /root/patches/
 
 RUN set -eux; \
-	true "Nginx"; \
-	apk add --no-cache nginx; \
-	ln -sf /dev/stdout /var/log/nginx/access.log; \
-	ln -sf /dev/stderr /var/log/nginx/error.log; \
 	true "Spawn-FCGI"; \
-	apk add --no-cache spawn-fcgi; \
+	apk add --no-cache \
+		spawn-fcgi; \
 	true "MariaDB"; \
-	apk add --no-cache mariadb mariadb-client mariadb-server-utils pwgen; \
+	apk add --no-cache \
+		mariadb-client; \
 	true "Perl"; \
 	apk add --no-cache perl; \
-#	true "Groups"; \
-#	addgroup -g 82 -S www-data; \
 	true "Users"; \
-	adduser -u 82 -D -S -H -h /var/www/html -G www-data www-data; \
 	adduser -u 500 -D -H -h /opt/rt -G www-data -g 'RT user' rt; \
 	true "RT requirements"; \
 	apk add --no-cache \
@@ -183,72 +183,53 @@ RUN set -eux; \
 	perl Makefile.PL; \
 	make; make install; \
 	\
-	true "Versioning"; \
-	if [ -n "$VERSION_INFO" ]; then echo "$VERSION_INFO" >> /.VERSION_INFO; fi; \
 	true "Cleanup"; \
 	apk del .build-deps; \
-	rm -rf /root/.cpan /root/.cpanm /root/patches /root/build; \
+	rm -rf \
+		/root/.cpan \
+		/root/.cpanm \
+		/root/patches \
+		/root/build; \
 	rm -f /var/cache/apk/*
 
+
 ## Nginx configuration
-COPY etc/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY etc/nginx/conf.d/rt.conf /etc/nginx/conf.d/default.conf
+COPY etc/nginx/http.d/50_vhost_default.conf /etc/nginx/http.d/50_vhost_default.conf
 COPY etc/nginx/rt.conf.fastcgi /etc/nginx/rt.conf.fastcgi
-COPY etc/supervisor/conf.d/nginx.conf /etc/supervisor/conf.d/nginx.conf
-COPY init.d/50-nginx.sh /docker-entrypoint-init.d/50-nginx.sh
 RUN set -eux; \
-		chown root:root \
-			/etc/nginx/nginx.conf \
-			/etc/nginx/conf.d/default.conf \
-			/etc/nginx/rt.conf.fastcgi \
-			/etc/supervisor/conf.d/nginx.conf \
-			/docker-entrypoint-init.d/50-nginx.sh; \
-		chmod 0644 \
-			/etc/nginx/nginx.conf \
-			/etc/nginx/conf.d/default.conf \
-			/etc/nginx/rt.conf.fastcgi \
-			/etc/supervisor/conf.d/nginx.conf; \
-		chmod 0755 \
-			/docker-entrypoint-init.d/50-nginx.sh
-EXPOSE 80
+	chown root:root \
+		/etc/nginx/http.d/50_vhost_default.conf \
+		/etc/nginx/rt.conf.fastcgi; \
+	chmod 0644 \
+		/etc/nginx/http.d/50_vhost_default.conf \
+		/etc/nginx/rt.conf.fastcgi
+
 
 # spawn-fcgi
 COPY etc/supervisor/conf.d/spawn-fcgi.conf /etc/supervisor/conf.d/spawn-fcgi.conf
 RUN set -eux; \
-		chown root:root /etc/supervisor/conf.d/spawn-fcgi.conf; \
-		chmod 0644 /etc/supervisor/conf.d/spawn-fcgi.conf
+	chown root:root /etc/supervisor/conf.d/spawn-fcgi.conf; \
+	chmod 0644 /etc/supervisor/conf.d/spawn-fcgi.conf
 
-# MariaDB
-COPY etc/my.cnf.d/docker.cnf /etc/my.cnf.d/docker.cnf
-COPY etc/supervisor/conf.d/mariadb.conf /etc/supervisor/conf.d/mariadb.conf
-COPY init.d/50-mariadb.sh /docker-entrypoint-init.d/50-mariadb.sh
-COPY pre-init-tests.d/50-mariadb.sh /docker-entrypoint-pre-init-tests.d/50-mariadb.sh
-RUN set -eux; \
-		chown root:root \
-			/etc/my.cnf.d/docker.cnf \
-			/etc/supervisor/conf.d/mariadb.conf \
-			/docker-entrypoint-init.d/50-mariadb.sh \
-			/docker-entrypoint-pre-init-tests.d/50-mariadb.sh; \
-		chmod 0644 \
-			/etc/my.cnf.d/docker.cnf \
-			/etc/supervisor/conf.d/mariadb.conf; \
-		chmod 0755 \
-			/docker-entrypoint-init.d/50-mariadb.sh \
-			/docker-entrypoint-pre-init-tests.d/50-mariadb.sh
-VOLUME ["/var/lib/mysql"]
 
 # RT
 COPY sbin/rt-ldap-importer /usr/local/sbin/
-COPY init.d/70-rt.sh /docker-entrypoint-init.d/70-rt.sh
-COPY pre-init-tests.d/50-rt.sh /docker-entrypoint-pre-init-tests.d/50-rt.sh
+COPY usr/local/share/flexible-docker-containers/init.d/46-rt.sh /usr/local/share/flexible-docker-containers/init.d
+COPY usr/local/share/flexible-docker-containers/pre-init-tests.d/46-rt.sh /usr/local/share/flexible-docker-containers/pre-init-tests.d
+COPY usr/local/share/flexible-docker-containers/tests.d/44-nginx.sh /usr/local/share/flexible-docker-containers/tests.d
 RUN set -eux; \
-		chown root:root \
-			/usr/local/sbin/rt-ldap-importer \
-			/docker-entrypoint-init.d/70-rt.sh \
-			/docker-entrypoint-pre-init-tests.d/50-rt.sh; \
-		chmod 0755 \
-			/usr/local/sbin/rt-ldap-importer \
-			/docker-entrypoint-init.d/70-rt.sh \
-			/docker-entrypoint-pre-init-tests.d/50-rt.sh
-#COPY backup /root/
+	true "Setup FCGI cache"; \
+	mkdir -p /var/lib/fcgicache; \
+	chown nginx:root /var/lib/fcgicache; \
+	chmod 700 /var/lib/fcgicache; \
+	true "Versioning"; \
+	if [ -n "$VERSION_INFO" ]; then echo "$VERSION_INFO" >> /.VERSION_INFO; fi; \
+	true "Permissions"; \
+	chown root:root \
+		/usr/local/sbin/rt-ldap-importer; \
+	chmod 0755 \
+		/usr/local/sbin/rt-ldap-importer; \
+	fdc set-perms
 
+
+VOLUME ["/opt/rt"]
