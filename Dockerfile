@@ -2,9 +2,9 @@ FROM registry.conarx.tech/containers/nginx/edge
 
 
 ARG VERSION_INFO=
-LABEL org.opencontainers.image.authors   = "Nigel Kukard <nkukard@conarx.tech>"
-LABEL org.opencontainers.image.version   = "edge"
-LABEL org.opencontainers.image.base.name = "registry.conarx.tech/containers/nginx/edge"
+LABEL org.opencontainers.image.authors   "Nigel Kukard <nkukard@conarx.tech>"
+LABEL org.opencontainers.image.version   "edge"
+LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx/edge"
 
 
 ENV RTHOME=/opt/rt5
