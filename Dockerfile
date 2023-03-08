@@ -2,9 +2,9 @@ FROM registry.conarx.tech/containers/nginx/3.17
 
 
 ARG VERSION_INFO=
-LABEL org.opencontainers.image.authors   = "Nigel Kukard <nkukard@conarx.tech>"
-LABEL org.opencontainers.image.version   = "3.17"
-LABEL org.opencontainers.image.base.name = "registry.conarx.tech/containers/nginx/3.17"
+LABEL org.opencontainers.image.authors   "Nigel Kukard <nkukard@conarx.tech>"
+LABEL org.opencontainers.image.version   "3.17"
+LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx/3.17"
 
 
 ENV RTHOME=/opt/rt5
