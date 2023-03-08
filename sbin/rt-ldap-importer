@@ -2,6 +2,7 @@
 
 sleep 5
 
+# shellcheck disable=SC2164
 cd /opt/rt5
 echo "INFO: Starting LDAP sync..."
 sbin/rt-ldapimport --import "$@"
