@@ -32,6 +32,7 @@ services:
       - MYSQL_PASSWORD=requesttracker
     networks:
       - internal
+      - external
 
   mariadb:
     image: registry.conarx.tech/containers/mariadb
@@ -43,8 +44,10 @@ services:
       - internal
 
 networks:
-  internal:
+  external:
     driver: bridge
     enable_ipv6: true
-
-# vim: filetype=yaml tabstop=2 shiftwidth=2 expandtab
+  internal:
+    driver: bridge
+    internal: true
+    enable_ipv6: true
