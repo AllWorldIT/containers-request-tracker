@@ -36,6 +36,7 @@ fdc_test_pass request-tracker "Nginx is responding using IPv4"
 
 # Return if we don't have IPv6 support
 if [ -z "$(ip -6 route show default)" ]; then
+	fdc_test_alert powerdns "Not running IPv6 tests due to no IPv6 default route"
 	return
 fi
 
