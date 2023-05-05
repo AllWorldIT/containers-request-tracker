@@ -8,7 +8,7 @@ LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx/
 
 
 ENV RTHOME=/opt/rt5
-ENV RT_VERSION=5.0.3
+ENV RT_VERSION=5.0.4
 ENV RT_EXTENSION_JSGANTT=1.07
 ENV RT_EXTENSION_REPEATTICKET=2.00
 ENV RT_EXTENSION_RESETPASSWORD=1.12
@@ -96,8 +96,8 @@ RUN set -eux; \
 		mariadb-connector-c \
 		perl-dbi \
 		perl-dbd-mysql \
-		# DO NOT ADD, CRASHES DUE TO USE AFTER DISCONNECT - CAN BE USED WHEN HITS 1.68
-		perl-dbix-searchbuilder \
+		# TODO: v3.17
+		#perl-dbix-searchbuilder \
 		# DBIx::SearchBuilder deps
 		perl-class-returnvalue perl-cache-simple-timedexpiry perl-class-accessor perl-clone perl-want perl-dbix-dbschema \
 		perl-time-parsedate \
@@ -109,6 +109,8 @@ RUN set -eux; \
 		perl-cookie-baker \
 		perl-http-entity-parser \
 		perl-parallel-forkmanager \
+		# TODO: v3.18
+#		perl-date-extract \
 		html2text \
 	; \
 	true "RT requirements: from CPAN"; \
@@ -133,6 +135,9 @@ RUN set -eux; \
 		IO::Handle::Util \
 		Web::Machine \
 		Text::WordDiff \
+		# TODO: move to package in 3.18
+		Date::Extract \
+		DBIx::SearchBuilder \
 	; \
 	# Make build directory
 	mkdir /root/build; \
