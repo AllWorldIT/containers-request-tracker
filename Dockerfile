@@ -1,16 +1,16 @@
-FROM registry.conarx.tech/containers/nginx/3.17
+FROM registry.conarx.tech/containers/nginx/3.18
 
 
 ARG VERSION_INFO=
 LABEL org.opencontainers.image.authors   "Nigel Kukard <nkukard@conarx.tech>"
-LABEL org.opencontainers.image.version   "3.17"
-LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx/3.17"
+LABEL org.opencontainers.image.version   "3.18"
+LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx/3.18"
 
 
 ENV RTHOME=/opt/rt5
-ENV RT_VERSION=5.0.4
+ENV RT_VERSION=5.0.5
 ENV RT_EXTENSION_JSGANTT=1.07
-ENV RT_EXTENSION_REPEATTICKET=2.00
+ENV RT_EXTENSION_REPEATTICKET=2.02
 ENV RT_EXTENSION_RESETPASSWORD=1.12
 
 
@@ -96,7 +96,7 @@ RUN set -eux; \
 		mariadb-connector-c \
 		perl-dbi \
 		perl-dbd-mysql \
-		# TODO: v3.17
+		# TODO: v3.18
 		#perl-dbix-searchbuilder \
 		# DBIx::SearchBuilder deps
 		perl-class-returnvalue perl-cache-simple-timedexpiry perl-class-accessor perl-clone perl-want perl-dbix-dbschema \
