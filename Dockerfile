@@ -112,6 +112,7 @@ RUN set -eux; \
 		# TODO: v3.18
 #		perl-date-extract \
 		html2text \
+		perl-ipc-run3 \
 	; \
 	true "RT requirements: from CPAN"; \
 	apk add --no-cache --virtual .build-deps \
