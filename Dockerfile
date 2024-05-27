@@ -1,10 +1,10 @@
-FROM registry.conarx.tech/containers/nginx/3.19
+FROM registry.conarx.tech/containers/nginx/3.20
 
 
 ARG VERSION_INFO=
 LABEL org.opencontainers.image.authors   "Nigel Kukard <nkukard@conarx.tech>"
-LABEL org.opencontainers.image.version   "3.19"
-LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx/3.19"
+LABEL org.opencontainers.image.version   "3.20"
+LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx/3.20"
 
 
 ENV RTHOME=/opt/rt5
