@@ -8,7 +8,7 @@ LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx/
 
 
 ENV RTHOME=/opt/rt5
-ENV RT_VERSION=5.0.6
+ENV RT_VERSION=5.0.7
 ENV RT_EXTENSION_JSGANTT=1.08
 ENV RT_EXTENSION_REPEATTICKET=2.03
 ENV RT_EXTENSION_RESETPASSWORD=1.12
