@@ -5,7 +5,7 @@ wait_for_db() {
 	while true; do
 		fdc_notice "RequestTracker waiting for MySQL server '$MYSQL_HOST'..."
 		export MYSQL_PWD="$MYSQL_PASSWORD"
-		if mysqladmin ping --host "$MYSQL_HOST" --user "$MYSQL_USER" --silent --connect-timeout=2; then
+		if mariadb-admin ping --skip-ssl --host "$MYSQL_HOST" --user "$MYSQL_USER" --silent --connect-timeout=2; then
 			break
 		fi
 		unset MYSQL_PWD
