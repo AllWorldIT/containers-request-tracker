@@ -97,7 +97,7 @@ RUN set -eux; \
 		perl-dbi \
 		perl-dbd-mysql \
 		# TODO: v3.18
-		#perl-dbix-searchbuilder \
+		perl-dbix-searchbuilder \
 		# DBIx::SearchBuilder deps
 		perl-class-returnvalue perl-cache-simple-timedexpiry perl-class-accessor perl-clone perl-want perl-dbix-dbschema \
 		perl-time-parsedate \
