@@ -1,10 +1,10 @@
-FROM registry.conarx.tech/containers/nginx/3.21
+FROM registry.conarx.tech/containers/nginx/3.22
 
 
 ARG VERSION_INFO=
 LABEL org.opencontainers.image.authors   = "Nigel Kukard <nkukard@conarx.tech>"
-LABEL org.opencontainers.image.version   = "3.21"
-LABEL org.opencontainers.image.base.name = "registry.conarx.tech/containers/nginx/3.21"
+LABEL org.opencontainers.image.version   = "3.22"
+LABEL org.opencontainers.image.base.name = "registry.conarx.tech/containers/nginx/3.22"
 
 
 ENV RTHOME=/opt/rt5
@@ -97,7 +97,7 @@ RUN set -eux; \
 		perl-dbi \
 		perl-dbd-mysql \
 		# TODO: v3.18
-		#perl-dbix-searchbuilder \
+		perl-dbix-searchbuilder \
 		# DBIx::SearchBuilder deps
 		perl-class-returnvalue perl-cache-simple-timedexpiry perl-class-accessor perl-clone perl-want perl-dbix-dbschema \
 		perl-time-parsedate \
