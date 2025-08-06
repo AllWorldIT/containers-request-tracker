@@ -2,16 +2,16 @@ FROM registry.conarx.tech/containers/nginx/edge
 
 
 ARG VERSION_INFO=
-LABEL org.opencontainers.image.authors   = "Nigel Kukard <nkukard@conarx.tech>"
-LABEL org.opencontainers.image.version   = "edge"
-LABEL org.opencontainers.image.base.name = "registry.conarx.tech/containers/nginx/edge"
+LABEL org.opencontainers.image.authors="Nigel Kukard <nkukard@conarx.tech>"
+LABEL org.opencontainers.image.version="edge"
+LABEL org.opencontainers.image.base.name="registry.conarx.tech/containers/nginx/edge"
 
 
-ENV RTHOME=/opt/rt5
-ENV RT_VERSION=5.0.7
-ENV RT_EXTENSION_JSGANTT=1.08
-ENV RT_EXTENSION_REPEATTICKET=2.03
-ENV RT_EXTENSION_RESETPASSWORD=1.12
+ENV RTHOME=/opt/rt6
+ENV RT_VERSION=6.0.1
+ENV RT_EXTENSION_JSGANTT=1.09
+ENV RT_EXTENSION_REPEATTICKET=3.00
+ENV RT_EXTENSION_RESETPASSWORD=2.00
 
 
 # Copy in patches so we can patch below...
@@ -123,9 +123,12 @@ RUN set -eux; \
 	\
 	# Modules not in alpine
 	cpanm --verbose install \
+		CSS::Inliner \
 		Encode::Detect::Detector \
+		Hash::Merge::Extra \
 		HTML::FormatExternal \
 		HTML::Gumbo \
+		Imager \
 		Module::Path \
 		MooseX::NonMoose \
 		MooseX::Role::Parameterized \
