@@ -1,0 +1,29 @@
+diff '--color=auto' -ru rt-6.0.1_vanilla/share/html/Elements/Footer rt-6.0.1_front-page-stripdown/share/html/Elements/Footer
+--- rt-6.0.1_vanilla/share/html/Elements/Footer	2025-08-05 17:44:35.000000000 +0000
++++ rt-6.0.1_front-page-stripdown/share/html/Elements/Footer	2025-08-06 21:10:11.324470060 +0000
+@@ -58,7 +58,9 @@
+ %     if ($m->{'rt_base_time'}) {
+         <span id="time"><&|/l&>Time to display</&>: <%Time::HiRes::tv_interval( $m->{'rt_base_time'} )%> -</span>
+ %     }
++% if (0) {
+       <span><&|/l_unsafe, $RT::VERSION, &>RT Version [_1]</&></span>
++% }
+     </p>
+   </div>
+   <div class="col-<% $cols %>">
+Only in rt-6.0.1_front-page-stripdown/share/html/Elements: Footer.orig
+Only in rt-6.0.1_front-page-stripdown/share/html/Elements: Footer.rej
+diff '--color=auto' -ru rt-6.0.1_vanilla/share/html/Elements/Login rt-6.0.1_front-page-stripdown/share/html/Elements/Login
+--- rt-6.0.1_vanilla/share/html/Elements/Login	2025-08-05 17:44:35.000000000 +0000
++++ rt-6.0.1_front-page-stripdown/share/html/Elements/Login	2025-08-06 21:10:44.685937791 +0000
+@@ -61,7 +61,7 @@
+ % $m->callback( %ARGS, CallbackName => 'BeforeForm' );
+ 
+ <div id="login-box">
+-<&| /Widgets/TitleBox, title => loc('Login'), titleright => $RT::VERSION, hideable => 0, htmx_load => 0 &>
++<&| /Widgets/TitleBox, title => loc('Login'), titleright => '', hideable => 0, htmx_load => 0 &>
+ 
+ <& LoginRedirectWarning, %ARGS &>
+ 
+Only in rt-6.0.1_front-page-stripdown/share/html/Elements: Login.orig
+Only in rt-6.0.1_front-page-stripdown/share/html/Elements: Login.rej
