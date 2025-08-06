@@ -74,7 +74,7 @@ RT data directory.
 RT_SiteConfig.pm configuration file for Request Tracker.
 
 
-## /opt/rt5/local/html/NoAuth/images/logo.png
+## /opt/rt6/local/html/NoAuth/images/logo.png
 
 Request Tracker logo.
 
@@ -132,7 +132,7 @@ services:
       # This file is symlinked into the .d directory in RT
       - ./config/RT_SiteConfig.pm:/opt/rt/RT_SiteConfig.pm
       # Logo
-      - ./config/logo.png:/opt/rt5/local/html/NoAuth/images/logo.png
+      - ./config/logo.png:/opt/rt6/local/html/NoAuth/images/logo.png
     networks:
       - internal
 

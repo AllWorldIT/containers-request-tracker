@@ -30,7 +30,7 @@ EOF
 
 
 # Create new configuration file
-cat <<EOF > /opt/rt5/etc/RT_SiteConfig.d/00-default.pm
+cat <<EOF > /opt/rt6/etc/RT_SiteConfig.d/00-default.pm
 use utf8;
 
 Set(\$DatabaseType, "mysql");
@@ -43,7 +43,7 @@ Set(\$DatabaseName, "$MYSQL_DATABASE");
 Set(\$ExternalStorageCutoffSize, 10_000);
 Set(%ExternalStorage,
 	Type => 'Disk',
-	Path => '/opt/rt5/var/attachments',
+	Path => '/opt/rt6/var/attachments',
 );
 
 EOF
@@ -55,7 +55,7 @@ if [ ! -e /opt/rt/RT_SiteConfig.pm ]; then
 	chown rt:www-data /opt/rt/RT_SiteConfig.pm
 	chmod 640 /opt/rt/RT_SiteConfig.pm
 fi
-ln -s /opt/rt/RT_SiteConfig.pm /opt/rt5/etc/RT_SiteConfig.d/50-custom.pm
+ln -s /opt/rt/RT_SiteConfig.pm /opt/rt6/etc/RT_SiteConfig.d/50-custom.pm
 
 
 # Make sure we have an attachments directory setup
@@ -65,7 +65,7 @@ if [ ! -d /opt/rt/var/attachments ]; then
 	chmod 750 /opt/rt/var/attachments
 fi
 # Link attachments directory in
-ln -s /opt/rt/var/attachments /opt/rt5/var/
+ln -s /opt/rt/var/attachments /opt/rt6/var/
 
 
 # Make sure we have a shredder directory setup
@@ -75,17 +75,17 @@ if [ ! -d /opt/rt/var/data/RT-Shredder ]; then
 	chmod 750 /opt/rt/var/data/RT-Shredder
 fi
 # Make sure the dir exists
-if [ ! -d /opt/rt5/var/data ]; then
-	mkdir -p /opt/rt5/var/data
+if [ ! -d /opt/rt6/var/data ]; then
+	mkdir -p /opt/rt6/var/data
 fi
 # Link it in
-ln -s /opt/rt/var/data/RT-Shredder /opt/rt5/var/data/
+ln -s /opt/rt/var/data/RT-Shredder /opt/rt6/var/data/
 
 
 # Reset permissions on local/html directory which could be mapped in
-chown rt:www-data /opt/rt5/local/html
-find /opt/rt5/local/html -type d -print0 | xargs -0 -r chmod 0755
-find /opt/rt5/local/html -type f -print0 | xargs -0 -r chmod 0644
+chown rt:www-data /opt/rt6/local/html
+find /opt/rt6/local/html -type d -print0 | xargs -0 -r chmod 0755
+find /opt/rt6/local/html -type f -print0 | xargs -0 -r chmod 0644
 
 
 # Wait for database to become available
@@ -99,7 +99,7 @@ if [ ! -e /opt/rt/.RT_VERSION ]; then
 	# shellcheck disable=SC2164
 	cd /opt/rt
 
-	/usr/bin/perl /opt/rt5/sbin/rt-setup-database --action init --skip-create
+	/usr/bin/perl /opt/rt6/sbin/rt-setup-database --action init --skip-create
 
 	echo "$RT_VERSION" > /opt/rt/.RT_VERSION
 	fdc_notice "Done initializing RequestTracker database"
@@ -113,7 +113,7 @@ if [ "$RT_VERSION" != "$RT_VERSION_OLD" ]; then
 	# shellcheck disable=SC2164
 	cd /opt/rt
 
-	/usr/bin/perl /opt/rt5/sbin/rt-setup-database --action upgrade \
+	/usr/bin/perl /opt/rt6/sbin/rt-setup-database --action upgrade \
 		--root-password-file /root/.rt_dba_password \
 		--upgrade-from "$RT_VERSION_OLD"
 
@@ -130,9 +130,9 @@ if [ ! -e /opt/rt/.RT_EXTENSION_REPEATTICKET ]; then
 	cd /opt/rt
 
 	# Repeat ticket
-	/usr/bin/perl /opt/rt5/sbin/rt-setup-database --action insert --skip-create \
-		--datadir "/opt/rt5/local/plugins/RT-Extension-RepeatTicket/etc" \
-		--datafile "/opt/rt5/local/plugins/RT-Extension-RepeatTicket/etc/initialdata" \
+	/usr/bin/perl /opt/rt6/sbin/rt-setup-database --action insert --skip-create \
+		--datadir "/opt/rt6/local/plugins/RT-Extension-RepeatTicket/etc" \
+		--datafile "/opt/rt6/local/plugins/RT-Extension-RepeatTicket/etc/initialdata" \
 		--package "q[RT::Extension::RepeatTicket]" --ext-version "q[${RT_EXTENSION_REPEATTICKET}]"
 	echo "$RT_EXTENSION_REPEATTICKET" > /opt/rt/.RT_EXTENSION_REPEATTICKET
 	fdc_notice "Initialized RequestTracker extension RT::Extension::RepeatTicket"
@@ -146,9 +146,9 @@ if [ ! -e /opt/rt/.RT_EXTENSION_RESETPASSWORD ]; then
 	cd /opt/rt
 
 	# Reset password
-	/usr/bin/perl /opt/rt5/sbin/rt-setup-database --action insert --skip-create \
-			--datadir "/opt/rt5/local/plugins/RT-Extension-ResetPassword/etc" \
-			--datafile "/opt/rt5/local/plugins/RT-Extension-ResetPassword/etc/initialdata" \
+	/usr/bin/perl /opt/rt6/sbin/rt-setup-database --action insert --skip-create \
+			--datadir "/opt/rt6/local/plugins/RT-Extension-ResetPassword/etc" \
+			--datafile "/opt/rt6/local/plugins/RT-Extension-ResetPassword/etc/initialdata" \
 			--package "q[RT::Extension::ResetPassword]" --ext-version "q[${RT_EXTENSION_RESETPASSWORD}]"
 	echo "$RT_EXTENSION_RESETPASSWORD" > /opt/rt/.RT_EXTENSION_RESETPASSWORD
 	fdc_notice "Initialized RequestTracker extension RT::Extension::ResetPassword"
@@ -163,14 +163,14 @@ chown nginx:root /var/lib/fcgicache
 chmod 700 /var/lib/fcgicache
 
 
-# Setup Postfix transport for rt5
+# Setup Postfix transport for rt6
 # shellcheck disable=SC2016
-echo 'rt unix - n n - - pipe flags=DORhu user=rt argv=/opt/rt5/bin/rt-mailgate --queue $nexthop --action correspond --url http://localhost/' >> /etc/postfix/master.cf
+echo 'rt unix - n n - - pipe flags=DORhu user=rt argv=/opt/rt6/bin/rt-mailgate --queue $nexthop --action correspond --url http://localhost/' >> /etc/postfix/master.cf
 
 
 # Setup crontab if we have LDAP configuration
 # shellcheck disable=SC2016
-if grep -q -E '^\s*Set\(\s*\$LDAPUpdateUsers' /opt/rt5/etc/RT_SiteConfig.d/*; then
+if grep -q -E '^\s*Set\(\s*\$LDAPUpdateUsers' /opt/rt6/etc/RT_SiteConfig.d/*; then
 	cat <<EOF > /etc/cron.d/request-tracker
 @reboot rt /usr/local/sbin/rt-ldap-importer --verbose
 */15 * * * * rt /usr/local/sbin/rt-ldap-importer
