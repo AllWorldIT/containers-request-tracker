@@ -8,7 +8,7 @@ LABEL org.opencontainers.image.base.name="registry.conarx.tech/containers/nginx/
 
 
 ENV RTHOME=/opt/rt6
-ENV RT_VERSION=6.0.1
+ENV RT_VERSION=6.0.2
 ENV RT_EXTENSION_JSGANTT=1.09
 ENV RT_EXTENSION_REPEATTICKET=3.00
 ENV RT_EXTENSION_RESETPASSWORD=2.00
@@ -142,6 +142,7 @@ RUN set -eux; \
 		# TODO: move to package in 3.18
 		Date::Extract \
 		DBIx::SearchBuilder \
+		DateTime::Set \
 	; \
 	# Make build directory
 	mkdir /root/build; \
